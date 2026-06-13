@@ -5,7 +5,11 @@
   "description": "Desglosa el precio total en precio por persona, por noche, etc.",
   "permissions": ["storage"],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "icon.jpg"
+  },
+  "icons": {
+    "128": "icon.jpg"
   },
   "content_scripts": [
     {
