@@ -1,11 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Booking Price Breakdown",
-  "version": "1.0",
-  "description": "Desglosa el precio total en precio por persona, por noche, etc.",
+  "version": "1.1",
+  "description": "Desglosa el precio total de Booking.com en precio por persona, por noche y por noche/persona.",
+
   "permissions": ["storage"],
+
+  "content_security_policy": {
+    "extension_pages": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none';"
+  },
+
   "action": {
     "default_popup": "popup.html",
+    "default_title": "Booking Price Breakdown",
     "default_icon": {
       "16": "icon16.png",
       "32": "icon32.png",
@@ -13,12 +20,14 @@
       "128": "icon128.png"
     }
   },
+
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",
     "48": "icon48.png",
     "128": "icon128.png"
   },
+
   "content_scripts": [
     {
       "matches": ["https://*.booking.com/*"],
