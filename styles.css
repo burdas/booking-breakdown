@@ -13,6 +13,8 @@
 .price-breakdown-extension {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
   border: 1px solid #dcdcdc;
   border-radius: 8px;
   background: #fdfdfd;
@@ -34,7 +36,6 @@
   padding: 6px 10px;
   margin-top: 4px;
   font-size: 11px;
-  max-width: 260px;
 }
 
 .price-breakdown-extension.pbe-detailed {
@@ -68,6 +69,47 @@
 .pbe-row strong {
   color: #003b95;
   font-weight: 700;
+}
+
+/* Reglas adaptativas específicas para la vista compacta (Listado) */
+.price-breakdown-extension.pbe-compact .pbe-row {
+  gap: 8px;
+}
+
+.price-breakdown-extension.pbe-compact .pbe-row .pbe-label {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.price-breakdown-extension.pbe-compact .pbe-row .pbe-label.pbe-marquee {
+  position: relative;
+}
+
+.price-breakdown-extension.pbe-compact .pbe-row .pbe-label.pbe-marquee .pbe-text {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.price-breakdown-extension.pbe-compact .pbe-row:hover .pbe-label.pbe-marquee {
+  text-overflow: clip;
+}
+
+.price-breakdown-extension.pbe-compact .pbe-row:hover .pbe-label.pbe-marquee .pbe-text {
+  animation: pbeMarquee 2.5s linear infinite;
+}
+
+@keyframes pbeMarquee {
+  0%, 15% { transform: translateX(0); }
+  85%, 100% { transform: translateX(-45px); }
+}
+
+.price-breakdown-extension.pbe-compact .pbe-row strong {
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 /* Resalte en la vista detallada */

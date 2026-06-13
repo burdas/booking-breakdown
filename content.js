@@ -161,16 +161,16 @@ function tryInject() {
       let htmlContent = '';
       
       if (userSettings.showTotal) {
-        htmlContent += `<div class="pbe-row"><span>💰 Total:</span><strong>${formatPrice(totalPrice, currencyInfo)}</strong></div>`;
+        htmlContent += `<div class="pbe-row"><span class="pbe-label"><span class="pbe-text">💰 Total:</span></span><strong>${formatPrice(totalPrice, currencyInfo)}</strong></div>`;
       }
       if (userSettings.showPerPerson) {
-        htmlContent += `<div class="pbe-row"><span>👥 Por persona:</span><strong>${formatPrice(perPerson, currencyInfo)}</strong></div>`;
+        htmlContent += `<div class="pbe-row"><span class="pbe-label"><span class="pbe-text">👥 Por persona:</span></span><strong>${formatPrice(perPerson, currencyInfo)}</strong></div>`;
       }
       if (userSettings.showPerNight) {
-        htmlContent += `<div class="pbe-row"><span>🌙 Por noche:</span><strong>${formatPrice(perNight, currencyInfo)}</strong></div>`;
+        htmlContent += `<div class="pbe-row"><span class="pbe-label"><span class="pbe-text">🌙 Por noche:</span></span><strong>${formatPrice(perNight, currencyInfo)}</strong></div>`;
       }
       if (userSettings.showPerNightPerPerson) {
-        htmlContent += `<div class="pbe-row"><span>✨ Por noche/persona:</span><strong>${formatPrice(perNightPerPerson, currencyInfo)}</strong></div>`;
+        htmlContent += `<div class="pbe-row"><span class="pbe-label pbe-marquee"><span class="pbe-text">✨ Por noche/persona:</span></span><strong>${formatPrice(perNightPerPerson, currencyInfo)}</strong></div>`;
       }
 
       // Si no hay nada seleccionado, no insertamos el contenedor
