@@ -117,27 +117,47 @@ function getNightsAndPeople() {
   return { nights, totalPeople };
 }
 
+function getPriceContainer(priceElement) {
+  const metadata = priceElement.closest('[data-testid="price-metadata"]');
+  if (metadata) return metadata;
+
+  let current = priceElement;
+  for (let i = 0; i < 5; i++) {
+    if (!current.parentElement) break;
+    current = current.parentElement;
+    
+    if (
+      current.querySelector('[data-testid="taxes-and-charges"]') || 
+      current.textContent.includes('impuestos') || 
+      current.textContent.includes('cargos') ||
+      current.textContent.includes('taxes') ||
+      current.textContent.includes('charges')
+    ) {
+      return current;
+    }
+  }
+  return priceElement;
+}
+
 function tryInject() {
   try {
     const { nights, totalPeople } = getNightsAndPeople();
     if (nights <= 0 || totalPeople <= 0) return;
 
     const priceElements = document.querySelectorAll(
-      '[data-testid="price-and-discounted-price"], .prco-valign-middle-helper, [data-testid="price-and-discounted-price"] span'
+      '[data-testid="price-and-discounted-price"], .prco-valign-middle-helper'
     );
 
     const isDetailPage = window.location.pathname.includes('/hotel/') || window.location.pathname.includes('hotel.html');
     const viewClass = isDetailPage ? 'pbe-detailed' : 'pbe-compact';
 
     priceElements.forEach(priceElement => {
-      if (priceElement.querySelector('[data-testid="price-and-discounted-price"]')) {
-        return;
-      }
-
       const totalPrice = getTotalPrice(priceElement);
       if (isNaN(totalPrice) || totalPrice <= 0) return;
 
-      const existing = priceElement.nextElementSibling;
+      const insertionTarget = getPriceContainer(priceElement);
+
+      const existing = insertionTarget.nextElementSibling;
       const hasBreakdown = existing && existing.classList.contains('price-breakdown-extension');
 
       if (hasBreakdown && parseFloat(existing.dataset.totalPrice) === totalPrice) {
@@ -177,7 +197,7 @@ function tryInject() {
       if (htmlContent === '') return;
 
       container.innerHTML = htmlContent;
-      priceElement.insertAdjacentElement('afterend', container);
+      insertionTarget.insertAdjacentElement('afterend', container);
     });
   } catch (error) {
     console.error('Error al inyectar desglose de precios:', error);
