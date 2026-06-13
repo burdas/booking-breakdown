@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Booking Price Breakdown",
+  "version": "1.0",
+  "description": "Desglosa el precio total en precio por persona, por noche, etc.",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["https://*.booking.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
