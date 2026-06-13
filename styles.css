@@ -1,20 +1,77 @@
+/* Animación de entrada suave */
+@keyframes pbeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .price-breakdown-extension {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-top: 6px;
-  background: #f5f9ff;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  background: #fdfdfd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  animation: pbeFadeIn 0.3s ease-out forwards;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efecto al pasar el cursor por el bloque general */
+.price-breakdown-extension:hover {
+  border-color: #006ce4;
+  box-shadow: 0 4px 12px rgba(0, 108, 228, 0.08);
+}
+
+/* Diferencias entre modos Compacto (Listado) y Detallado (Hotel) */
+.price-breakdown-extension.pbe-compact {
+  padding: 6px 10px;
+  margin-top: 4px;
+  font-size: 11px;
+  max-width: 260px;
+}
+
+.price-breakdown-extension.pbe-detailed {
+  padding: 12px 16px;
+  margin-top: 10px;
   font-size: 13px;
-  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
+  max-width: 320px;
 }
 
 .pbe-row {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  padding: 2px 0;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+/* Hover suave en cada fila de desglose */
+.pbe-row:hover {
+  background-color: #f0f6ff;
+}
+
+.pbe-row span {
+  color: #474747;
+  font-weight: 500;
 }
 
 .pbe-row strong {
-  color: #0071c2;
+  color: #003b95;
+  font-weight: 700;
 }
+
+/* Resalte en la vista detallada */
+.pbe-detailed .pbe-row strong {
+  font-size: 14px;
+}
+

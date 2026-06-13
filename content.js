@@ -1,13 +1,97 @@
 console.log('Booking Price Breakdown: Extensión cargada correctamente.');
 
-function getTotalPrice(priceElement) {
-  // Limpia el texto: quita símbolos de moneda, espacios, etc.
-  // Admite decimales con punto o coma
-  const priceText = priceElement.textContent
-    .replace(/[^\d,.]/g, '')
-    .replace(',', '');
+let userSettings = {
+  showTotal: true,
+  showPerPerson: true,
+  showPerNight: true,
+  showPerNightPerPerson: true
+};
 
-  return parseFloat(priceText);
+// Carga inicial de preferencias
+chrome.storage.local.get(Object.keys(userSettings), (result) => {
+  Object.keys(userSettings).forEach(key => {
+    if (result[key] !== undefined) {
+      userSettings[key] = result[key];
+    }
+  });
+  tryInject();
+});
+
+// Escuchar cambios en la configuración y actualizar inmediatamente
+chrome.storage.onChanged.addListener((changes) => {
+  let changed = false;
+  for (let key in changes) {
+    if (userSettings[key] !== undefined) {
+      userSettings[key] = changes[key].newValue;
+      changed = true;
+    }
+  }
+  if (changed) {
+    document.querySelectorAll('.price-breakdown-extension').forEach(el => el.remove());
+    tryInject();
+  }
+});
+
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+function getTotalPrice(priceElement) {
+  let text = priceElement.textContent.trim();
+  const match = text.match(/[\d.,]+/);
+  if (!match) return NaN;
+  let numStr = match[0];
+  
+  if (numStr.includes('.') && numStr.includes(',')) {
+    const dotIdx = numStr.indexOf('.');
+    const commaIdx = numStr.indexOf(',');
+    if (dotIdx < commaIdx) {
+      numStr = numStr.replace(/\./g, '').replace(',', '.');
+    } else {
+      numStr = numStr.replace(/,/g, '');
+    }
+  } else if (numStr.includes(',')) {
+    const parts = numStr.split(',');
+    const lastPart = parts[parts.length - 1];
+    if (parts.length === 2 && lastPart.length === 2) {
+      numStr = numStr.replace(',', '.');
+    } else {
+      numStr = numStr.replace(/,/g, '');
+    }
+  } else if (numStr.includes('.')) {
+    const parts = numStr.split('.');
+    const lastPart = parts[parts.length - 1];
+    if (parts.length > 2 || lastPart.length !== 2) {
+      numStr = numStr.replace(/\./g, '');
+    }
+  }
+  return parseFloat(numStr);
+}
+
+function getCurrencyInfo(priceElement) {
+  const text = priceElement.textContent.trim();
+  const currencyMatch = text.match(/([^\d\s,.-]+)/);
+  let symbol = '€';
+  let isPrefix = false;
+  
+  if (currencyMatch) {
+    symbol = currencyMatch[1];
+    if (text.startsWith(symbol)) {
+      isPrefix = true;
+    }
+  }
+  return { symbol, isPrefix };
+}
+
+function formatPrice(val, currencyInfo) {
+  const formattedVal = val.toFixed(2);
+  return currencyInfo.isPrefix 
+    ? `${currencyInfo.symbol}${formattedVal}`
+    : `${formattedVal} ${currencyInfo.symbol}`;
 }
 
 function getNightsAndPeople() {
@@ -18,7 +102,6 @@ function getNightsAndPeople() {
   const adultsParam = params.get('group_adults') || '1';
   const childrenParam = params.get('group_children') || '0';
 
-  // Soporta múltiples habitaciones (p.ej. group_adults=2,2)
   const adults = adultsParam.split(',').reduce((sum, val) => sum + parseInt(val || '0', 10), 0);
   const children = childrenParam.split(',').reduce((sum, val) => sum + parseInt(val || '0', 10), 0);
 
@@ -39,13 +122,14 @@ function tryInject() {
     const { nights, totalPeople } = getNightsAndPeople();
     if (nights <= 0 || totalPeople <= 0) return;
 
-    // Encontrar todos los elementos de precio en la página (búsquedas o ficha de hotel)
     const priceElements = document.querySelectorAll(
       '[data-testid="price-and-discounted-price"], .prco-valign-middle-helper, [data-testid="price-and-discounted-price"] span'
     );
 
+    const isDetailPage = window.location.pathname.includes('/hotel/') || window.location.pathname.includes('hotel.html');
+    const viewClass = isDetailPage ? 'pbe-detailed' : 'pbe-compact';
+
     priceElements.forEach(priceElement => {
-      // Evitamos procesar elementos anidados que tengan el mismo texto
       if (priceElement.querySelector('[data-testid="price-and-discounted-price"]')) {
         return;
       }
@@ -53,41 +137,46 @@ function tryInject() {
       const totalPrice = getTotalPrice(priceElement);
       if (isNaN(totalPrice) || totalPrice <= 0) return;
 
-      // Buscar si ya hemos inyectado el desglose justo después de este elemento
       const existing = priceElement.nextElementSibling;
       const hasBreakdown = existing && existing.classList.contains('price-breakdown-extension');
 
-      // Si ya está inyectado y el precio no ha cambiado, no hacemos nada
       if (hasBreakdown && parseFloat(existing.dataset.totalPrice) === totalPrice) {
         return;
       }
 
-      // Si el precio cambió, eliminamos el desglose anterior
       if (hasBreakdown) {
         existing.remove();
       }
 
-      // Detecta la divisa del texto original del precio
-      let currencySymbol = '€';
-      const match = priceElement.textContent.match(/([^\d\s,.]+)/);
-      if (match) {
-        currencySymbol = match[1];
-      }
+      const currencyInfo = getCurrencyInfo(priceElement);
 
       const perPerson = totalPrice / totalPeople;
       const perNight = totalPrice / nights;
       const perNightPerPerson = perNight / totalPeople;
 
       const container = document.createElement('div');
-      container.className = 'price-breakdown-extension';
+      container.className = `price-breakdown-extension ${viewClass}`;
       container.dataset.totalPrice = totalPrice;
-      container.innerHTML = `
-        <div class="pbe-row"><span>Total:</span><strong>${totalPrice.toFixed(2)} ${currencySymbol}</strong></div>
-        <div class="pbe-row"><span>Por persona:</span><strong>${perPerson.toFixed(2)} ${currencySymbol}</strong></div>
-        <div class="pbe-row"><span>Por noche:</span><strong>${perNight.toFixed(2)} ${currencySymbol}</strong></div>
-        <div class="pbe-row"><span>Por noche/persona:</span><strong>${perNightPerPerson.toFixed(2)} ${currencySymbol}</strong></div>
-      `;
 
+      let htmlContent = '';
+      
+      if (userSettings.showTotal) {
+        htmlContent += `<div class="pbe-row"><span>💰 Total:</span><strong>${formatPrice(totalPrice, currencyInfo)}</strong></div>`;
+      }
+      if (userSettings.showPerPerson) {
+        htmlContent += `<div class="pbe-row"><span>👥 Por persona:</span><strong>${formatPrice(perPerson, currencyInfo)}</strong></div>`;
+      }
+      if (userSettings.showPerNight) {
+        htmlContent += `<div class="pbe-row"><span>🌙 Por noche:</span><strong>${formatPrice(perNight, currencyInfo)}</strong></div>`;
+      }
+      if (userSettings.showPerNightPerPerson) {
+        htmlContent += `<div class="pbe-row"><span>✨ Por noche/persona:</span><strong>${formatPrice(perNightPerPerson, currencyInfo)}</strong></div>`;
+      }
+
+      // Si no hay nada seleccionado, no insertamos el contenedor
+      if (htmlContent === '') return;
+
+      container.innerHTML = htmlContent;
       priceElement.insertAdjacentElement('afterend', container);
     });
   } catch (error) {
@@ -95,11 +184,11 @@ function tryInject() {
   }
 }
 
+// Observador con debounce de 150ms para evitar sobrecarga del DOM
+const debouncedInject = debounce(tryInject, 150);
 const observer = new MutationObserver(() => {
-  tryInject();
+  debouncedInject();
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Intento inicial al cargar
-tryInject();
