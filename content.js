@@ -83,7 +83,30 @@
       : `${formatted} ${currencyInfo.symbol}`;
   }
 
-  function parseStayInfoFromUrl() {
+  function parseStayInfoFromDom() {
+    let nights = null;
+    let totalPeople = null;
+    const bodyText = document.body?.textContent || '';
+
+    const nightMatch = bodyText.match(/(\d+)\s*(noches?|noche|night|nights)/i);
+    if (nightMatch) nights = parseInt(nightMatch[1], 10);
+
+    const adultsMatch = bodyText.match(/(\d+)\s*(adultos?|adulto|adult|adults)/i);
+    const childrenMatch = bodyText.match(/(\d+)\s*(niños?|niño|child|children)/i);
+
+    if (adultsMatch || childrenMatch) {
+      const adults = adultsMatch ? parseInt(adultsMatch[1], 10) : 0;
+      const children = childrenMatch ? parseInt(childrenMatch[1], 10) : 0;
+      totalPeople = adults + children;
+    } else {
+      const guestsMatch = bodyText.match(/(\d+)\s*(huéspedes?|huésped|guests?|guest|personas?|persona)/i);
+      if (guestsMatch) totalPeople = parseInt(guestsMatch[1], 10);
+    }
+
+    return { nights, totalPeople };
+  }
+
+  function parseStayInfo() {
     try {
       const params   = new URLSearchParams(window.location.search);
       const checkin  = params.get('checkin');
@@ -94,21 +117,34 @@
           .split(',')
           .reduce((sum, v) => sum + (parseInt(v, 10) || 0), 0);
 
-      const adults   = parseGroupParam('group_adults',   '1');
+      const adults   = parseGroupParam('group_adults',   '0');
       const children = parseGroupParam('group_children', '0');
 
-      let nights = 1;
+      let nights = 0;
       if (checkin && checkout) {
         const diff = new Date(checkout).getTime() - new Date(checkin).getTime();
         if (diff > 0) nights = Math.round(diff / MS_PER_DAY);
       }
 
+      const fromUrl = {
+        nights:      Math.max(nights, 0),
+        totalPeople: Math.max(adults + children, 0),
+      };
+
+      if (fromUrl.nights > 0 && fromUrl.totalPeople > 0) return fromUrl;
+
+      const domInfo = parseStayInfoFromDom();
+
       return {
-        nights:      Math.max(nights, 1),
-        totalPeople: Math.max(adults + children, 1),
+        nights:      fromUrl.nights || domInfo.nights,
+        totalPeople: fromUrl.totalPeople || domInfo.totalPeople,
       };
     } catch {
-      return { nights: 1, totalPeople: 1 };
+      try {
+        return parseStayInfoFromDom();
+      } catch {
+        return null;
+      }
     }
   }
 
@@ -199,7 +235,8 @@
 
   function injectAllBreakdowns() {
     try {
-      const stayInfo      = parseStayInfoFromUrl();
+      const stayInfo      = parseStayInfo();
+      if (!stayInfo || !stayInfo.nights || !stayInfo.totalPeople) return;
       const priceElements = document.querySelectorAll(PRICE_SELECTORS);
       priceElements.forEach(el => injectBreakdown(el, stayInfo));
     } catch (err) {
