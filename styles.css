@@ -58,6 +58,10 @@
   max-width: 320px;
 }
 
+.price-breakdown-extension.pbe-detailed .pbe-row .pbe-label {
+  white-space: nowrap;
+}
+
 .pbe-row {
   display: flex;
   justify-content: space-between;
