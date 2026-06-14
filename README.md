@@ -14,12 +14,30 @@ Una extensión de navegador (compatible con Google Chrome, Microsoft Edge y nave
 
 ```text
 booking-breakdown/
-├── manifest.json  # Metadatos y permisos de la extensión (Manifest V3)
-├── content.js     # Lógica de extracción de datos e inyección del desglose
-├── styles.css     # Estilos CSS de las tarjetas de desglose
-├── plan.md        # Plan de desarrollo original de la extensión
-└── README.md      # Este archivo de documentación
+├── manifest.json   # Metadatos y permisos de la extensión (Manifest V3)
+├── content.js      # Lógica de extracción de datos e inyección del desglose
+├── styles.css      # Estilos CSS de las tarjetas de desglose
+├── popup.html      # Interfaz del popup de la extensión
+├── popup.js        # Lógica del popup
+├── popup.css       # Estilos del popup
+├── icon{16,32,48,128}.png  # Iconos de la extensión
+├── scripts/
+│   └── build.sh    # Script de empaquetado para publicación
+├── dist/           # Archivos generados (zip de publicación, ignorado por git)
+├── .gitignore      # Ignora dist/ y archivos temporales
+└── README.md       # Este archivo de documentación
 ```
+
+## Empaquetado para Publicación
+
+Para publicar la extensión en la Chrome Web Store, genera un `.zip` con solo los archivos necesarios:
+
+```bash
+bash scripts/build.sh                          # dist/booking-price-breakdown-v1.1.zip
+bash scripts/build.sh --output-dir ./releases  # Directorio personalizado
+```
+
+El script extrae nombre y versión del `manifest.json`, incluye solo los archivos listados y excluye automáticamente archivos de desarrollo (`.git/`, `README.md`, `plan.md`, etc.).
 
 ## Instalación (Modo Desarrollador)
 
