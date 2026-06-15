@@ -252,18 +252,16 @@
     };
   }
 
-  chrome.storage.local.get(Object.keys(DEFAULT_SETTINGS), (result) => {
-    if (chrome.runtime.lastError) {
-      injectAllBreakdowns();
-      return;
-    }
-    Object.keys(DEFAULT_SETTINGS).forEach((key) => {
-      if (result[key] !== undefined) state.settings[key] = result[key];
-    });
-    injectAllBreakdowns();
-  });
+  browser.storage.local.get(Object.keys(DEFAULT_SETTINGS))
+    .then((result) => {
+      Object.keys(DEFAULT_SETTINGS).forEach((key) => {
+        if (result[key] !== undefined) state.settings[key] = result[key];
+      });
+    })
+    .catch(() => {})
+    .finally(() => injectAllBreakdowns());
 
-  chrome.storage.onChanged.addListener((changes, areaName) => {
+  browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') return;
 
     let changed = false;

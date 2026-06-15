@@ -1,1 +1,3 @@
 dist/
+node_modules/
+browser-polyfill.min.js

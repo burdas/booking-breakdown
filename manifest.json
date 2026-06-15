@@ -4,6 +4,13 @@
   "version": "1.1",
   "description": "Desglosa el precio total de Booking.com en precio por persona, por noche y por noche/persona.",
 
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{38c8e3a2-1e4f-4f5d-8a7b-9c0d1e2f3a4b}",
+      "strict_min_version": "128.0"
+    }
+  },
+
   "permissions": ["storage"],
 
   "content_security_policy": {
@@ -31,7 +38,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.booking.com/*"],
-      "js": ["content.js"],
+      "js": ["browser-polyfill.min.js", "content.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     }

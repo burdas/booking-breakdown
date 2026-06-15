@@ -1,0 +1,11 @@
+.git/
+.gitignore
+node_modules/
+scripts/
+dist/
+*.md
+LICENSE
+plan.md
+package.json
+package-lock.json
+.web-ext-ignore

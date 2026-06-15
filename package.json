@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "postinstall": "cp node_modules/webextension-polyfill/dist/browser-polyfill.min.js .",
+    "build": "web-ext build --overwrite-dest --artifacts-dir ./dist",
+    "lint": "web-ext lint",
+    "start": "web-ext run"
+  },
+  "devDependencies": {
+    "web-ext": "^8.0.0",
+    "webextension-polyfill": "^0.12.0"
+  }
+}
