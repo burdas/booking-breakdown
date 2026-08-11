@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "Booking Price Breakdown"
+  },
+  "extDescription": {
+    "message": "Breaks down Booking.com total prices into per-person, per-night, and per-night-per-person prices."
+  },
+  "defaultTitle": {
+    "message": "Booking Price Breakdown"
+  }
+}

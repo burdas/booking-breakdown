@@ -8,13 +8,6 @@
 
   const TAX_KEYWORDS = ['impuestos', 'cargos', 'taxes', 'charges'];
 
-  const BREAKDOWN_LABELS = {
-    total:          '💰 Total:',
-    perPerson:      '👥 Por persona:',
-    perNight:       '🌙 Por noche:',
-    perNightPerson: '✨ Por noche/persona:',
-  };
-
   const DEFAULT_SETTINGS = {
     showTotal:           true,
     showPerPerson:       true,
@@ -186,18 +179,24 @@
 
   function buildBreakdownContainer(totalPrice, nights, totalPeople, currencyInfo, viewClass) {
     const { settings } = state;
+    const labels = {
+      total:          I18n.t('labelTotal'),
+      perPerson:      I18n.t('labelPerPerson'),
+      perNight:       I18n.t('labelPerNight'),
+      perNightPerson: I18n.t('labelPerNightPerson'),
+    };
     const fmt = (val) => formatPrice(val, currencyInfo);
 
     const fragment = document.createDocumentFragment();
 
     if (settings.showTotal)
-      fragment.appendChild(buildRow(BREAKDOWN_LABELS.total, fmt(totalPrice)));
+      fragment.appendChild(buildRow(labels.total, fmt(totalPrice)));
     if (settings.showPerPerson)
-      fragment.appendChild(buildRow(BREAKDOWN_LABELS.perPerson, fmt(totalPrice / totalPeople)));
+      fragment.appendChild(buildRow(labels.perPerson, fmt(totalPrice / totalPeople)));
     if (settings.showPerNight)
-      fragment.appendChild(buildRow(BREAKDOWN_LABELS.perNight, fmt(totalPrice / nights)));
+      fragment.appendChild(buildRow(labels.perNight, fmt(totalPrice / nights)));
     if (settings.showPerNightPerPerson)
-      fragment.appendChild(buildRow(BREAKDOWN_LABELS.perNightPerson, fmt(totalPrice / nights / totalPeople), true));
+      fragment.appendChild(buildRow(labels.perNightPerson, fmt(totalPrice / nights / totalPeople), true));
 
     if (fragment.childElementCount === 0) return null;
 
@@ -252,19 +251,28 @@
     };
   }
 
-  browser.storage.local.get(Object.keys(DEFAULT_SETTINGS))
-    .then((result) => {
+  async function init() {
+    await I18n.resolveLanguage();
+    try {
+      const result = await browser.storage.local.get(Object.keys(DEFAULT_SETTINGS));
       Object.keys(DEFAULT_SETTINGS).forEach((key) => {
         if (result[key] !== undefined) state.settings[key] = result[key];
       });
-    })
-    .catch(() => {})
-    .finally(() => injectAllBreakdowns());
+    } catch (e) {}
+    injectAllBreakdowns();
+    startObserver();
+  }
 
-  browser.storage.onChanged.addListener((changes, areaName) => {
+  browser.storage.onChanged.addListener(async (changes, areaName) => {
     if (areaName !== 'local') return;
 
     let changed = false;
+
+    if ('language' in changes) {
+      await I18n.resolveLanguage();
+      changed = true;
+    }
+
     for (const key in changes) {
       if (key in state.settings) {
         state.settings[key] = changes[key].newValue;
@@ -292,5 +300,5 @@
     }
   });
 
-  startObserver();
+  init();
 })();

@@ -11,43 +11,48 @@
     <img src="icon128.png" class="header-logo" alt="Booking Breakdown logo" width="24" height="24">
     <h1>Booking Breakdown</h1>
   </div>
-  <p class="description">
-    Personaliza qué desgloses deseas ver en la página de Booking:
-  </p>
+  <div class="language-select">
+    <label class="language-label" for="languageSelect" data-i18n="langLabel"></label>
+    <select id="languageSelect" aria-label="Language">
+      <option value="auto" data-i18n="langAuto"></option>
+      <option value="es">Español</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+  <p class="description" data-i18n="popupDescription"></p>
   <div class="option-list">
     <div class="option-item">
-      <span class="option-label">💰 Precio total</span>
-      <label class="switch" aria-label="Mostrar precio total">
+      <span class="option-label" data-i18n="optionTotal"></span>
+      <label class="switch" data-i18n-aria="ariaTotal">
         <input type="checkbox" id="showTotal">
         <span class="slider"></span>
       </label>
     </div>
     <div class="option-item">
-      <span class="option-label">👥 Por persona</span>
-      <label class="switch" aria-label="Mostrar precio por persona">
+      <span class="option-label" data-i18n="optionPerPerson"></span>
+      <label class="switch" data-i18n-aria="ariaPerPerson">
         <input type="checkbox" id="showPerPerson">
         <span class="slider"></span>
       </label>
     </div>
     <div class="option-item">
-      <span class="option-label">🌙 Por noche</span>
-      <label class="switch" aria-label="Mostrar precio por noche">
+      <span class="option-label" data-i18n="optionPerNight"></span>
+      <label class="switch" data-i18n-aria="ariaPerNight">
         <input type="checkbox" id="showPerNight">
         <span class="slider"></span>
       </label>
     </div>
     <div class="option-item">
-      <span class="option-label">✨ Por noche y persona</span>
-      <label class="switch" aria-label="Mostrar precio por noche y persona">
+      <span class="option-label" data-i18n="optionPerNightPerPerson"></span>
+      <label class="switch" data-i18n-aria="ariaPerNightPerPerson">
         <input type="checkbox" id="showPerNightPerPerson">
         <span class="slider"></span>
       </label>
     </div>
   </div>
-  <footer class="footer">
-    Los cambios se aplican automáticamente en tiempo real.
-  </footer>
+  <footer class="footer" data-i18n="footerText"></footer>
   <script src="browser-polyfill.min.js"></script>
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 
 </body>
