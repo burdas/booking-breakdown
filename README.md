@@ -24,8 +24,9 @@ booking-breakdown/
 ├── icon{16,32,48,128}.png     # Iconos de la extensión
 ├── package.json               # Dependencias y scripts (web-ext)
 ├── package-lock.json
-├── .web-ext-ignore             # Archivos a excluir del empaquetado con web-ext
-├── dist/                       # Archivos generados (zip de publicación, ignorado por git)
+├── scripts/build.sh            # Script de build: limpia dist, empaqueta y descomprime
+├── .web-ext-ignore             # (Legacy) Patrones históricos de exclusión
+├── dist/                       # Archivos generados (zip + carpeta descomprimida, ignorado por git)
 ├── .gitignore                  # Ignora dist/, node_modules/ y archivos temporales
 └── README.md                   # Este archivo de documentación
 ```
@@ -39,7 +40,16 @@ npm install                      # Instala web-ext y webextension-polyfill
 npm run build                    # Genera .zip en dist/
 ```
 
-El empaquetado se realiza con [`web-ext`](https://github.com/mozilla/web-ext) y respeta las reglas de exclusión definidas en `.web-ext-ignore`.
+El empaquetado se realiza con [`web-ext`](https://github.com/mozilla/web-ext). El script `scripts/build.sh` limpia `dist/`, genera el `.zip` excluyendo los archivos de desarrollo mediante `--ignore-files` y lo descomprime, dejando tanto el `.zip` como la carpeta descomprimida en `dist/`.
+
+## Cómo probar la extensión
+
+Tras ejecutar `npm run build`, en `dist/` quedan el `.zip` y la carpeta descomprimida (`dist/booking_price_breakdown-1.3/`). Para probar la extensión, carga esa carpeta descomprimida:
+
+- **Chrome / Edge**: abre `chrome://extensions` (o `edge://extensions`), activa el **"Modo de desarrollador"** y haz clic en **"Cargar descomprimida"** seleccionando la carpeta `dist/booking_price_breakdown-1.3/`.
+- **Firefox**: abre `about:debugging#/runtime/this-firefox`, haz clic en **"Cargar complemento temporal..."** y selecciona el archivo `manifest.json` dentro de `dist/booking_price_breakdown-1.3/`.
+
+Después, abre Booking.com y busca un destino para ver el desglose de precios.
 
 ## Instalación (Modo Desarrollador)
 
