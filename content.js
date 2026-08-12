@@ -9,10 +9,11 @@
   const TAX_KEYWORDS = ['impuestos', 'cargos', 'taxes', 'charges'];
 
   const DEFAULT_SETTINGS = {
-    showTotal:           true,
-    showPerPerson:       true,
-    showPerNight:        true,
+    showTotal:             true,
+    showPerPerson:         true,
+    showPerNight:          true,
     showPerNightPerPerson: true,
+    rowOrder:              ['showTotal', 'showPerPerson', 'showPerNight', 'showPerNightPerPerson'],
   };
 
   const state = {
@@ -187,16 +188,19 @@
     };
     const fmt = (val) => formatPrice(val, currencyInfo);
 
-    const fragment = document.createDocumentFragment();
+    const rowDefs = {
+      showTotal:             { label: labels.total,          value: fmt(totalPrice),                          marquee: false },
+      showPerPerson:         { label: labels.perPerson,      value: fmt(totalPrice / totalPeople),            marquee: false },
+      showPerNight:          { label: labels.perNight,       value: fmt(totalPrice / nights),                 marquee: false },
+      showPerNightPerPerson: { label: labels.perNightPerson, value: fmt(totalPrice / nights / totalPeople),   marquee: true },
+    };
 
-    if (settings.showTotal)
-      fragment.appendChild(buildRow(labels.total, fmt(totalPrice)));
-    if (settings.showPerPerson)
-      fragment.appendChild(buildRow(labels.perPerson, fmt(totalPrice / totalPeople)));
-    if (settings.showPerNight)
-      fragment.appendChild(buildRow(labels.perNight, fmt(totalPrice / nights)));
-    if (settings.showPerNightPerPerson)
-      fragment.appendChild(buildRow(labels.perNightPerson, fmt(totalPrice / nights / totalPeople), true));
+    const fragment = document.createDocumentFragment();
+    (settings.rowOrder || DEFAULT_SETTINGS.rowOrder).forEach((key) => {
+      const def = rowDefs[key];
+      if (!def || !settings[key]) return;
+      fragment.appendChild(buildRow(def.label, def.value, def.marquee));
+    });
 
     if (fragment.childElementCount === 0) return null;
 
