@@ -13,6 +13,7 @@
     showPerPerson:         true,
     showPerNight:          true,
     showPerNightPerPerson: true,
+    decimalPlaces:         2,
     rowOrder:              ['showTotal', 'showPerPerson', 'showPerNight', 'showPerNightPerPerson'],
   };
 
@@ -71,7 +72,8 @@
   }
 
   function formatPrice(value, currencyInfo) {
-    const formatted = value.toFixed(2);
+    const decimals  = state.settings.decimalPlaces ?? 2;
+    const formatted = value.toFixed(decimals);
     return currencyInfo.isPrefix
       ? `${currencyInfo.symbol}${formatted}`
       : `${formatted} ${currencyInfo.symbol}`;

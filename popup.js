@@ -2,6 +2,8 @@
 
 const SETTINGS_KEYS = ['showTotal', 'showPerPerson', 'showPerNight', 'showPerNightPerPerson'];
 const DEFAULT_ROW_ORDER = ['showTotal', 'showPerPerson', 'showPerNight', 'showPerNightPerPerson'];
+const DECIMAL_PLACES_KEY = 'decimalPlaces';
+const DEFAULT_DECIMAL_PLACES = 2;
 
 function getOptionItem(key) {
   return document.querySelector(`.option-item[data-key="${key}"]`);
@@ -129,6 +131,30 @@ function bindToggle(key) {
   });
 }
 
+function loadDecimalPlaces() {
+  const select = document.getElementById('decimalPlaces');
+  if (!select) return;
+  browser.storage.local.get({ decimalPlaces: DEFAULT_DECIMAL_PLACES })
+    .then((result) => {
+      select.value = String(result.decimalPlaces);
+    })
+    .catch(() => {
+      select.value = String(DEFAULT_DECIMAL_PLACES);
+    });
+}
+
+function bindDecimalPlaces() {
+  const select = document.getElementById('decimalPlaces');
+  if (!select) return;
+  select.addEventListener('change', async (e) => {
+    try {
+      await browser.storage.local.set({ decimalPlaces: parseInt(e.target.value, 10) });
+    } catch (e) {
+      console.error('[BookingBreakdown] Failed to save decimal places:', e.message);
+    }
+  });
+}
+
 function renderTranslations() {
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     el.textContent = I18n.t(el.dataset.i18n);
@@ -171,6 +197,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyRowOrder(Array.isArray(result.rowOrder) ? result.rowOrder : DEFAULT_ROW_ORDER);
   loadSettings(SETTINGS_KEYS);
   SETTINGS_KEYS.forEach(bindToggle);
+  loadDecimalPlaces();
+  bindDecimalPlaces();
   bindRowOrder();
   bindLanguageSelect();
 });
