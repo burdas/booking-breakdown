@@ -13,6 +13,19 @@
   --pbe-font:           -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+html[data-darkreader-scheme="dark"] .price-breakdown-extension {
+  --pbe-primary:        #8ab4ff;
+  --pbe-accent:         #6cb2ff;
+  --pbe-accent-glow:    rgba(110, 178, 255, 0.15);
+  --pbe-border:         #3a4048;
+  --pbe-text:           #c9cdd4;
+  --pbe-text-strong:    #9cc2ff;
+  --pbe-bg:             #1c1f24;
+  --pbe-bg-detailed:    linear-gradient(180deg, #22262d 0%, #16191e 100%);
+  --pbe-hover-bg:       #262c35;
+  --pbe-shadow:         rgba(0, 0, 0, 0.5);
+}
+
 @keyframes pbeFadeIn {
   from {
     opacity: 0;
